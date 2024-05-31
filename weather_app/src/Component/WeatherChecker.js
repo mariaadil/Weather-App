@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const Weather = () => {
-  const [city, setCity] = useState('');
+const Weather = ({ onWeatherChange }) => {
+  const [city, setCity] = useState('London'); // Set a default city
   const [unit, setUnit] = useState('metric'); 
   const [weatherData, setWeatherData] = useState(null);
   const [error, setError] = useState(null);
@@ -15,35 +15,21 @@ const Weather = () => {
         `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=${unit}`
       );
       setWeatherData(response.data);
+      onWeatherChange(response.data.weather[0].main.toLowerCase(), cityName); // Pass the weather condition and city
       setError(null);
     } catch (err) {
       setError('City not found');
       setWeatherData(null);
+      onWeatherChange(null, ''); // Reset the weather condition
     }
   };
 
   useEffect(() => {
     const fetchWeather = async () => {
-      if (!city) {
-        // Fetch weather based on user's location if city is not set
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(async (position) => {
-            const { latitude, longitude } = position.coords;
-            try {
-              const locationResponse = await axios.get(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
-              const cityName = locationResponse.data.city || locationResponse.data.locality || locationResponse.data.principalSubdivision;
-              setCity(cityName);
-              await getWeather(cityName);
-            } catch (err) {
-              setError('Unable to fetch weather for your location');
-            }
-          });
-        } else {
-          setError('Geolocation is not supported by this browser');
-        }
-      } else {
-        // Fetch weather for the specified city
+      try {
         await getWeather(city);
+      } catch (err) {
+        setError('Failed to fetch weather data');
       }
     };
 
@@ -62,7 +48,7 @@ const Weather = () => {
   };
 
   return (
-    <div className="flex flex-col items-center p-8 bg-white bg-opacity-80 rounded-lg shadow-lg w-full max-w-md mx-auto mt-10">
+    <div className="flex flex-col items-center p-8 bg-white bg-opacity-80 rounded-lg shadow-lg w-full max-w-md mx-auto mt-10 z-10">
       <form onSubmit={handleSubmit} className="w-full mb-6 flex flex-col items-center">
         <input
           type="text"
@@ -106,7 +92,6 @@ const Weather = () => {
           <p className="text-lg mt-1 capitalize">{weatherData.weather[0].description}</p>
         </div>
       )}
-      
     </div>
   );
 };

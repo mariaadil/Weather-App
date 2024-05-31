@@ -1,38 +1,35 @@
-.App {
-  text-align: center;
+@keyframes clearWeatherAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+@keyframes rainWeatherAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+@keyframes cloudsWeatherAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.clear-weather-bg {
+  background: linear-gradient(-45deg, #23a6d5, #23d5ab, #f5af19, #f12711);
+  background-size: 400% 400%;
+  animation: clearWeatherAnimation 15s ease infinite;
 }
 
-.App-link {
-  color: #61dafb;
+.rain-weather-bg {
+  background: linear-gradient(-45deg, #00c6ff, #0072ff, #00c6ff, #0072ff);
+  background-size: 400% 400%;
+  animation: rainWeatherAnimation 15s ease infinite;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.clouds-weather-bg {
+  background: linear-gradient(-45deg, #bdc3c7, #2c3e50, #bdc3c7, #2c3e50);
+  background-size: 400% 400%;
+  animation: cloudsWeatherAnimation 15s ease infinite;
 }

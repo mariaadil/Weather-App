@@ -1,75 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const HourlyWeather = () => {
-  const [city, setCity] = useState('');
-  const [weatherData, setWeatherData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+const HourlyWeather = ({ city }) => {
+  const [hourlyData, setHourlyData] = useState([]);
+  const [error, setError] = useState(null);
 
-  const API_KEY = '189a3406a6d9b05f10c92bcda67bc008';
+  const apiKey = '2aa2778e69b80e5d455437fec2478312';
 
-  const fetchWeatherData = async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`);
-      if (!response.ok) {
-        throw new Error('City not found. Please enter a valid city name.');
+  useEffect(() => {
+    const fetchHourlyWeather = async () => {
+      try {
+        const response = await axios.get(
+          `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`
+        );
+        setHourlyData(response.data.list.slice(0, 12)); // Limit to first 12 hours
+        setError(null);
+      } catch (err) {
+        setError('Failed to fetch hourly weather data');
+        setHourlyData([]);
       }
-      const data = await response.json();
-      setWeatherData(data);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  const handleCityChange = (e) => {
-    setCity(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (city.trim() !== '') {
-      fetchWeatherData();
+    if (city) {
+      fetchHourlyWeather();
     }
-  };
+  }, [city]);
 
   return (
-    <div className="current-weather flex flex-col items-center p-8 bg-white bg-opacity-80 rounded-lg shadow-lg w-full max-w-md mx-auto mt-10 overflow-auto">
-      <form onSubmit={handleSubmit} className="w-full mb-6 flex flex-col items-center">
-        <input
-          type="text"
-          value={city}
-          onChange={handleCityChange}
-          placeholder="Enter city name"
-          className="w-full px-4 py-2 mb-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          type="submit"
-          className="py-2 px-4 bg-blue-600 rounded-lg text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
-        >
-          Check Hourly Weather
-        </button>
-      </form>
-      <div className="max-h-96 overflow-auto w-full">
-        {loading && <p className="text-gray-800">Loading...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-        {weatherData && (
-          <div className="text-center text-gray-800">
-            <h3 className="text-3xl font-semibold">{weatherData.city.name}</h3>
-            {weatherData.list.slice(0, 12).map((hourlyData, index) => (
-              <div key={index} className="border border-gray-300 rounded-lg p-2 mb-2">
-                <p>Time: {new Date(hourlyData.dt * 1000).toLocaleTimeString()}</p>
-                <p>Temperature: {hourlyData.main.temp} °C</p>
-                <p>Description: {hourlyData.weather[0].description}</p>
-                {/* Add more hourly weather details as needed */}
-              </div>
-            ))}
-          </div>
-        )}
+    <div className="w-full max-w-4xl p-6 bg-white bg-opacity-75 rounded-lg shadow-lg ">
+      <h3 className="text-xl font-semibold text-gray-800 mb-4">Hourly Weather for {city}</h3>
+      {error && <p className="text-red-500">{error}</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {hourlyData.map((data, index) => (
+          <div key={index} className="border rounded-lg p-1 bg-white shadow-md max-w-xs">
+  <p className="text-sm text-gray-600">Time: {new Date(data.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+  <p className="text-lg font-semibold text-gray-800">Temperature: {data.main.temp} °C</p>
+  <p className="text-sm text-gray-600 capitalize">Description: {data.weather[0].description}</p>
+</div>
+        ))}
       </div>
     </div>
   );
